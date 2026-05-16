@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forex — Currency Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+    :root {
+      --bg:          #f4f6fb;
+      --surface:     #ffffff;
+      --surface-2:   #eef1f8;
+      --border:      #dde2ef;
+      --text:        #1a1e2e;
+      --text-2:      #6b7494;
+      --accent:      #3d6bfd;
+      --accent-soft: #ebefff;
+      --accent-2:    #22c5a0;
+      --danger:      #e85d5d;
+      --warning:     #f5a623;
+      --shadow:      0 2px 12px rgba(30,40,80,.08);
+      --shadow-lg:   0 8px 32px rgba(30,40,80,.13);
+      --radius:      14px;
+      --radius-sm:   8px;
+      --transition:  .2s cubic-bezier(.4,0,.2,1);
+      --font:        'DM Sans', sans-serif;
+      --mono:        'DM Mono', monospace;
+    }
+    [data-theme="dark"] {
+      --bg:          #111521;
+      --surface:     #1a2036;
+      --surface-2:   #222840;
+      --border:      #2e3655;
+      --text:        #e8ecf8;
+      --text-2:      #7b85aa;
+      --accent:      #5b84fd;
+      --accent-soft: #1c2545;
+      --accent-2:    #28dbb5;
+      --danger:      #f07070;
+      --shadow:      0 2px 12px rgba(0,0,0,.3);
+      --shadow-lg:   0 8px 32px rgba(0,0,0,.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+    input, select { font-family: var(--font); }
+    img { display: block; max-width: 100%; }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .app-wrap { display: flex; min-height: 100vh; }
+
+    /* ---- SIDEBAR ---- */
+    .sidebar {
+      width: 230px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0 20px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 200;
+      transition: transform var(--transition), background var(--transition);
+    }
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-mark svg { width: 18px; height: 18px; fill: #fff; }
+    .logo-text { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
+    .logo-text span { color: var(--accent); }
+
+    .sidebar-nav { flex: 1; padding: 0 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: all var(--transition);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-item:hover { color: var(--text); background: var(--surface-2); }
+    .nav-item.active { color: var(--accent); background: var(--accent-soft); }
+
+    .nav-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 14px 14px 4px;
+    }
+
+    .sidebar-footer { padding: 16px 12px 0; border-top: 1px solid var(--border); }
+    .theme-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .toggle-switch {
+      width: 38px; height: 20px;
+      background: var(--border);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .toggle-switch.on { background: var(--accent); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform var(--transition);
+    }
+    .toggle-switch.on::after { transform: translateX(18px); }
+
+    /* ---- MAIN ---- */
+    .main-content {
+      flex: 1;
+      margin-left: 230px;
+      padding: 32px 36px;
+      max-width: 1100px;
+    }
+
+    /* ---- TOPBAR ---- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .topbar-title { font-size: 22px; font-weight: 600; letter-spacing: -.4px; }
+    .topbar-sub { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .hamburger span {
+      width: 20px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all var(--transition);
+    }
+
+    /* ---- OVERLAY ---- */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 150;
+    }
+    .overlay.show { display: block; }
+
+    /* ============================================================
+       CARDS
+    ============================================================ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    /* ============================================================
+       CONVERTER SECTION
+    ============================================================ */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 14px;
+    }
+
+    .converter-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: stretch;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--bg);
+      transition: border-color var(--transition);
+    }
+    .input-wrap:focus-within { border-color: var(--accent); }
+
+    .input-flag {
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      border-right: 1px solid var(--border);
+      background: var(--surface-2);
+      min-width: 48px;
+      justify-content: center;
+    }
+
+    .styled-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      width: 100%;
+      font-family: var(--mono);
+    }
+    .styled-input::placeholder { color: var(--text-2); font-family: var(--font); font-weight: 400; }
+
+    .styled-select {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      width: 100%;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7494' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+      transition: border-color var(--transition);
+    }
+    .styled-select:focus { border-color: var(--accent); }
+
+    .swap-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      transition: all var(--transition);
+      flex-shrink: 0;
+      margin-bottom: 0;
+      border: 1.5px solid var(--accent-soft);
+      align-self: flex-end;
+      margin-bottom: 1px;
+    }
+    .swap-btn:hover { background: var(--accent); color: #fff; transform: rotate(180deg); }
+    .swap-btn svg { width: 18px; height: 18px; }
+
+    .convert-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -.1px;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .convert-btn:hover { background: #2d59e8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(61,107,253,.35); }
+    .convert-btn:active { transform: translateY(0); }
+    .convert-btn.loading { pointer-events: none; opacity: .7; }
+
+    /* ---- RESULT CARD ---- */
+    .result-card {
+      margin-top: 16px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--accent-soft) 0%, var(--surface) 100%);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--accent-soft);
+      display: none;
+    }
+    .result-card.show { display: block; animation: slideUp .3s ease; }
+    .result-amount {
+      font-size: 32px;
+      font-weight: 600;
+      font-family: var(--mono);
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+    .result-rate {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-top: 6px;
+    }
+    .result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .result-updated { font-size: 12px; color: var(--text-2); }
+    .save-btn {
+      padding: 8px 18px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+    .save-btn:hover { background: #2d59e8; }
+
+    /* ---- QUICK STATS ---- */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .stat-card {
+      padding: 16px 18px;
+      text-align: center;
+    }
+    .stat-val { font-size: 20px; font-weight: 600; font-family: var(--mono); color: var(--accent); }
+    .stat-label { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+    /* ============================================================
+       FAVORITES
+    ============================================================ */
+    .fav-section { margin-top: 28px; }
+    .fav-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .fav-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .fav-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .fav-chip .fav-remove {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      margin-left: 2px;
+      transition: background var(--transition);
+      color: var(--text-2);
+    }
+    .fav-chip:hover .fav-remove { background: var(--danger); color: #fff; }
+    .add-fav-btn {
+      padding: 7px 14px;
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--text-2);
+      transition: all var(--transition);
+    }
+    .add-fav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .empty-fav { font-size: 13px; color: var(--text-2); font-style: italic; }
+
+    /* ============================================================
+       HISTORY SECTION
+    ============================================================ */
+    .history-section { margin-top: 36px; }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .history-title { font-size: 16px; font-weight: 600; }
+    .history-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      width: 15px; height: 15px;
+      color: var(--text-2);
+      pointer-events: none;
+    }
+    .search-input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px 9px 32px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 220px;
+      transition: border-color var(--transition);
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text-2); }
+
+    .danger-btn {
+      padding: 9px 16px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--danger);
+      transition: all var(--transition);
+    }
+    .danger-btn:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+    /* ---- TABLE ---- */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface-2); }
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    td {
+      padding: 13px 16px;
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:hover td { background: var(--surface-2); }
+
+    .currency-pair {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .currency-flag { font-size: 16px; }
+    .arrow-icon { color: var(--text-2); font-size: 12px; }
+
+    .amount-cell { font-family: var(--mono); font-size: 13px; }
+    .rate-cell { font-size: 12px; color: var(--text-2); font-family: var(--mono); }
+
+    .date-cell { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+
+    .action-group { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      transition: all var(--transition);
+      color: var(--text-2);
+    }
+    .icon-btn svg { width: 14px; height: 14px; }
+    .icon-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .icon-btn.del:hover { background: var(--danger); border-color: var(--danger); }
+
+    /* ---- EMPTY STATE ---- */
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--text-2);
+    }
+    .empty-state-icon {
+      width: 56px; height: 56px;
+      background: var(--surface-2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .empty-state-icon svg { width: 26px; height: 26px; color: var(--text-2); }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; }
+
+    /* ============================================================
+       MODAL (Edit)
+    ============================================================ */
+    .modal-bg {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.show { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      margin: 20px;
+      animation: slideUp .25s ease;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+    .modal-fields { display: flex; flex-direction: column; gap: 14px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .ghost-btn {
+      padding: 10px 18px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: all var(--transition);
+    }
+    .ghost-btn:hover { border-color: var(--text); color: var(--text); }
+    .primary-btn {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+    .primary-btn:hover { background: #2d59e8; }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+      animation: toastIn .3s ease;
+      pointer-events: all;
+    }
+    .toast.out { animation: toastOut .3s ease forwards; }
+    .toast-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .toast.success .toast-dot { background: var(--accent-2); }
+    .toast.error .toast-dot { background: var(--danger); }
+    .toast.info .toast-dot { background: var(--accent); }
+
+    /* ============================================================
+       SPINNER
+    ============================================================ */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* ============================================================
+       ANIMATIONS
+    ============================================================ */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(20px); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+    .loading-pulse { animation: pulse 1.4s ease infinite; }
+
+    /* ============================================================
+       LOADING SKELETON
+    ============================================================ */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ============================================================
+       VALIDATION
+    ============================================================ */
+    .field-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 4px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+    .input-wrap.error { border-color: var(--danger); }
+
+    /* ============================================================
+       BADGE
+    ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.success { background: rgba(34,197,160,.12); color: var(--accent-2); }
+    .badge.neutral { background: var(--surface-2); color: var(--text-2); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 24px 20px;
+      }
+      .hamburger { display: flex; }
+      .converter-grid {
+        grid-template-columns: 1fr;
+      }
+      .swap-btn {
+        align-self: auto;
+        margin: 0 auto;
+      }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .main-content { padding: 16px 14px; }
+      .topbar { flex-direction: row; }
+      .topbar-info { flex: 1; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stats-row .stat-card:last-child { grid-column: 1 / -1; }
+      .history-controls { width: 100%; }
+      .search-input { width: 100%; }
+      .history-header { flex-direction: column; align-items: flex-start; }
+      .search-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+        </svg>
+      </div>
+      <span class="logo-text">For<span>ex</span></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Menu</span>
+      <button class="nav-item active" onclick="scrollToSection('converter')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M2 12l4-4m-4 4 4 4M22 12l-4-4m4 4-4 4"/></svg>
+        Converter
+      </button>
+      <button class="nav-item" onclick="scrollToSection('history')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3M3.05 11a9 9 0 1 0 .5-3.5"/><path d="M3 5v3h3"/></svg>
+        History
+      </button>
+      <button class="nav-item" onclick="scrollToSection('favorites')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+        Favorites
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle-row">
+        <span>Dark mode</span>
+        <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-info">
+        <div class="topbar-title">Currency Exchange</div>
+        <div class="topbar-sub" id="topbarDate">Loading rates...</div>
+      </div>
+      <button class="hamburger" id="hamburger" onclick="openSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- CONVERTER -->
+    <section id="converter">
+      <div class="card">
+        <div class="section-title">Convert Currency</div>
+
+        <div class="converter-grid">
+          <!-- Amount -->
+          <div>
+            <label class="field-label" for="amount">Amount</label>
+            <div class="input-wrap" id="amountWrap">
+              <span class="input-flag" id="baseFlag">🇺🇸</span>
+              <input type="number" class="styled-input" id="amount" placeholder="Enter amount" min="0" value="1" />
+            </div>
+            <div class="field-error" id="amountError">Please enter a valid amount greater than 0.</div>
+          </div>
+
+          <!-- Swap -->
+          <div>
+            <button class="swap-btn" onclick="swapCurrencies()" aria-label="Swap currencies">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Target -->
+          <div>
+            <label class="field-label" for="targetAmount">Converted Amount</label>
+            <div class="input-wrap">
+              <span class="input-flag" id="targetFlag">🇪🇺</span>
+              <input type="text" class="styled-input" id="targetAmount" placeholder="—" readonly />
+            </div>
+          </div>
+        </div>
+
+        <!-- Currency Selects -->
+        <div class="converter-grid" style="margin-bottom:0;">
+          <div>
+            <label class="field-label" for="baseCurrency">From Currency</label>
+            <select class="styled-select" id="baseCurrency"></select>
+          </div>
+          <div></div>
+          <div>
+            <label class="field-label" for="targetCurrency">To Currency</label>
+            <select class="styled-select" id="targetCurrency"></select>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <button class="convert-btn" id="convertBtn" onclick="handleConvert()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h20M2 12l4-4m-4 4 4 4"/></svg>
+            Convert
+          </button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-card" id="resultCard">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div class="result-amount" id="resultAmount">0.00</div>
+              <div class="result-rate" id="resultRate">1 USD = 0.92 EUR</div>
+            </div>
+            <span class="badge success" id="resultBadge">Live Rate</span>
+          </div>
+          <div class="result-meta">
+            <span class="result-updated" id="resultUpdated">Last updated: —</span>
+            <button class="save-btn" onclick="saveConversion()">Save to History</button>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-row">
+          <div class="card stat-card">
+            <div class="stat-val" id="statTotal">0</div>
+            <div class="stat-label">Conversions Saved</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-val" id="statFav">0</div>
+            <div class="stat-label">Favorites</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-val" id="statRate">—</div>
+            <div class="stat-label">Current Rate</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAVORITES -->
+    <section class="fav-section" id="favorites">
+      <div class="card">
+        <div class="section-title">Favorite Currencies</div>
+        <div class="fav-list" id="favList">
+          <span class="empty-fav">No favorites yet. Convert a currency and add it.</span>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="add-fav-btn" onclick="addCurrentFavorite()">+ Add Current Pair</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="history-section" id="history">
+      <div class="history-header">
+        <div class="history-title">Conversion History</div>
+        <div class="history-controls">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by currency, date..." oninput="debounceSearch()" />
+          </div>
+          <button class="danger-btn" onclick="clearAllHistory()">Clear All</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="tableWrap">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <div class="modal-title">Edit Conversion</div>
+      <div class="modal-fields">
+        <div>
+          <label class="field-label">Amount</label>
+          <div class="input-wrap"><input type="number" class="styled-input" id="editAmount" placeholder="Amount" /></div>
+        </div>
+        <div>
+          <label class="field-label">From Currency</label>
+          <select class="styled-select" id="editBase"></select>
+        </div>
+        <div>
+          <label class="field-label">To Currency</label>
+          <select class="styled-select" id="editTarget"></select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost-btn" onclick="closeModal()">Cancel</button>
+        <button class="primary-btn" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+  /* ============================================================
+     CONSTANTS & STATE
+  ============================================================ */
+  const API_BASE = 'https://api.exchangerate-api.com/v4/latest/';
+  const LS_HISTORY = 'forex_history';
+  const LS_FAVS    = 'forex_favorites';
+  const LS_THEME   = 'forex_theme';
+
+  let currentRates  = {};
+  let currentBase   = 'USD';
+  let currentTarget = 'EUR';
+  let lastUpdated   = '';
+  let editingId     = null;
+  let searchTimer   = null;
+
+  // All supported currencies with flag emojis
+  const CURRENCIES = {
+    USD: { name: 'US Dollar',          flag: '🇺🇸' },
+    EUR: { name: 'Euro',               flag: '🇪🇺' },
+    GBP: { name: 'British Pound',      flag: '🇬🇧' },
+    JPY: { name: 'Japanese Yen',       flag: '🇯🇵' },
+    AUD: { name: 'Australian Dollar',  flag: '🇦🇺' },
+    CAD: { name: 'Canadian Dollar',    flag: '🇨🇦' },
+    CHF: { name: 'Swiss Franc',        flag: '🇨🇭' },
+    CNY: { name: 'Chinese Yuan',       flag: '🇨🇳' },
+    INR: { name: 'Indian Rupee',       flag: '🇮🇳' },
+    BRL: { name: 'Brazilian Real',     flag: '🇧🇷' },
+    MXN: { name: 'Mexican Peso',       flag: '🇲🇽' },
+    SGD: { name: 'Singapore Dollar',  flag: '🇸🇬' },
+    HKD: { name: 'Hong Kong Dollar',  flag: '🇭🇰' },
+    SEK: { name: 'Swedish Krona',     flag: '🇸🇪' },
+    NOK: { name: 'Norwegian Krone',   flag: '🇳🇴' },
+    DKK: { name: 'Danish Krone',      flag: '🇩🇰' },
+    NZD: { name: 'NZ Dollar',         flag: '🇳🇿' },
+    ZAR: { name: 'South African Rand',flag: '🇿🇦' },
+    RUB: { name: 'Russian Ruble',     flag: '🇷🇺' },
+    TRY: { name: 'Turkish Lira',      flag: '🇹🇷' },
+    KRW: { name: 'South Korean Won',  flag: '🇰🇷' },
+    AED: { name: 'UAE Dirham',        flag: '🇦🇪' },
+    SAR: { name: 'Saudi Riyal',       flag: '🇸🇦' },
+    IDR: { name: 'Indonesian Rupiah', flag: '🇮🇩' },
+    MYR: { name: 'Malaysian Ringgit', flag: '🇲🇾' },
+    THB: { name: 'Thai Baht',         flag: '🇹🇭' },
+    PHP: { name: 'Philippine Peso',   flag: '🇵🇭' },
+    PKR: { name: 'Pakistani Rupee',   flag: '🇵🇰' },
+    BDT: { name: 'Bangladeshi Taka',  flag: '🇧🇩' },
+    EGP: { name: 'Egyptian Pound',    flag: '🇪🇬' },
+  };
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  function init() {
+    populateSelects();
+    loadTheme();
+    renderFavorites();
+    renderHistory();
+    updateStats();
+
+    // Restore last selections
+    const saved = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+    if (saved.length) {
+      document.getElementById('baseCurrency').value   = saved[0].base   || 'USD';
+      document.getElementById('targetCurrency').value = saved[0].target || 'EUR';
+    }
+
+    currentBase   = document.getElementById('baseCurrency').value;
+    currentTarget = document.getElementById('targetCurrency').value;
+    updateFlags();
+
+    // Auto-fetch on load
+    fetchRates(currentBase);
+
+    // Listeners
+    document.getElementById('baseCurrency').addEventListener('change', () => {
+      currentBase = document.getElementById('baseCurrency').value;
+      updateFlags();
+      fetchRates(currentBase);
+    });
+    document.getElementById('targetCurrency').addEventListener('change', () => {
+      currentTarget = document.getElementById('targetCurrency').value;
+      updateFlags();
+      if (Object.keys(currentRates).length) doConvert();
+    });
+    document.getElementById('amount').addEventListener('input', () => {
+      if (Object.keys(currentRates).length) doConvert();
+    });
+
+    // Update topbar date
+    document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  /* ============================================================
+     POPULATE SELECTS
+  ============================================================ */
+  function populateSelects(selectIds = ['baseCurrency','targetCurrency','editBase','editTarget']) {
+    const options = Object.entries(CURRENCIES)
+      .map(([code, { name, flag }]) =>
+        `<option value="${code}">${flag} ${code} — ${name}</option>`
+      ).join('');
+
+    selectIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = options;
+    });
+
+    document.getElementById('baseCurrency').value   = 'USD';
+    document.getElementById('targetCurrency').value = 'EUR';
+  }
+
+  /* ============================================================
+     FLAGS
+  ============================================================ */
+  function updateFlags() {
+    document.getElementById('baseFlag').textContent   = (CURRENCIES[currentBase]   || {}).flag || '';
+    document.getElementById('targetFlag').textContent = (CURRENCIES[currentTarget] || {}).flag || '';
+  }
+
+  /* ============================================================
+     FETCH RATES
+  ============================================================ */
+  async function fetchRates(base) {
+    setConvertBtnLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}${base}`);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      currentRates = data.rates;
+      lastUpdated  = new Date().toLocaleTimeString();
+      doConvert();
+    } catch (err) {
+      showToast('Failed to fetch rates. Check your connection.', 'error');
+      setConvertBtnLoading(false);
+    }
+  }
+
+  /* ============================================================
+     CONVERT
+  ============================================================ */
+  function doConvert() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (!amount || amount <= 0 || !currentRates[currentTarget]) {
+      document.getElementById('targetAmount').value = '';
+      return;
+    }
+    const rate   = currentRates[currentTarget];
+    const result = (amount * rate).toFixed(4);
+
+    document.getElementById('targetAmount').value  = formatNumber(result);
+    document.getElementById('resultAmount').textContent = `${formatNumber(result)} ${currentTarget}`;
+    document.getElementById('resultRate').textContent   = `1 ${currentBase} = ${rate.toFixed(6)} ${currentTarget}`;
+    document.getElementById('resultUpdated').textContent = `Last updated: ${lastUpdated}`;
+    document.getElementById('statRate').textContent     = rate.toFixed(4);
+
+    document.getElementById('resultCard').classList.add('show');
+    setConvertBtnLoading(false);
+  }
+
+  function handleConvert() {
+    clearErrors();
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (!amount || amount <= 0) {
+      document.getElementById('amountWrap').classList.add('error');
+      document.getElementById('amountError').classList.add('show');
+      return;
+    }
+    if (Object.keys(currentRates).length === 0) {
+      fetchRates(currentBase);
+    } else {
+      doConvert();
+    }
+  }
+
+  function clearErrors() {
+    document.getElementById('amountWrap').classList.remove('error');
+    document.getElementById('amountError').classList.remove('show');
+  }
+
+  function setConvertBtnLoading(on) {
+    const btn = document.getElementById('convertBtn');
+    if (on) {
+      btn.innerHTML = '<div class="spinner"></div> Fetching...';
+      btn.classList.add('loading');
+    } else {
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h20M2 12l4-4m-4 4 4 4"/></svg> Convert`;
+      btn.classList.remove('loading');
+    }
+  }
+
+  /* ============================================================
+     SWAP
+  ============================================================ */
+  function swapCurrencies() {
+    const base   = document.getElementById('baseCurrency');
+    const target = document.getElementById('targetCurrency');
+    [base.value, target.value] = [target.value, base.value];
+    currentBase   = base.value;
+    currentTarget = target.value;
+    updateFlags();
+    fetchRates(currentBase);
+  }
+
+  /* ============================================================
+     FORMAT
+  ============================================================ */
+  function formatNumber(n) {
+    return parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  }
+
+  /* ============================================================
+     HISTORY — CRUD
+  ============================================================ */
+  function getHistory() {
+    return JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+  }
+
+  function saveHistory(list) {
+    localStorage.setItem(LS_HISTORY, JSON.stringify(list));
+    updateStats();
+  }
+
+  function saveConversion() {
+    const amount  = parseFloat(document.getElementById('amount').value);
+    const rate    = currentRates[currentTarget];
+    if (!amount || !rate) { showToast('Nothing to save. Convert first.', 'error'); return; }
+
+    const entry = {
+      id:        Date.now(),
+      base:      currentBase,
+      target:    currentTarget,
+      amount:    amount,
+      result:    parseFloat((amount * rate).toFixed(4)),
+      rate:      parseFloat(rate.toFixed(6)),
+      timestamp: new Date().toISOString(),
+    };
+
+    const list = getHistory();
+    list.unshift(entry);
+    saveHistory(list);
+    renderHistory();
+    showToast('Conversion saved to history.', 'success');
+  }
+
+  function deleteEntry(id) {
+    const list = getHistory().filter(e => e.id !== id);
+    saveHistory(list);
+    renderHistory();
+    showToast('Entry deleted.', 'success');
+  }
+
+  function clearAllHistory() {
+    if (!getHistory().length) { showToast('History is already empty.', 'info'); return; }
+    saveHistory([]);
+    renderHistory();
+    showToast('All history cleared.', 'success');
+  }
+
+  /* ---- EDIT ---- */
+  function openEdit(id) {
+    const entry = getHistory().find(e => e.id === id);
+    if (!entry) return;
+    editingId = id;
+    document.getElementById('editAmount').value = entry.amount;
+    document.getElementById('editBase').value   = entry.base;
+    document.getElementById('editTarget').value = entry.target;
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('show');
+    editingId = null;
+  }
+
+  async function saveEdit() {
+    const list   = getHistory();
+    const idx    = list.findIndex(e => e.id === editingId);
+    if (idx < 0) return;
+
+    const amount = parseFloat(document.getElementById('editAmount').value);
+    const base   = document.getElementById('editBase').value;
+    const target = document.getElementById('editTarget').value;
+
+    if (!amount || amount <= 0) { showToast('Enter a valid amount.', 'error'); return; }
+
+    // Fetch fresh rate for new pair
+    try {
+      const res  = await fetch(`${API_BASE}${base}`);
+      const data = await res.json();
+      const rate = data.rates[target];
+      list[idx]  = { ...list[idx], amount, base, target, result: parseFloat((amount * rate).toFixed(4)), rate };
+      saveHistory(list);
+      renderHistory();
+      closeModal();
+      showToast('Conversion updated.', 'success');
+    } catch {
+      showToast('Failed to fetch rate for update.', 'error');
+    }
+  }
+
+  /* ============================================================
+     RENDER HISTORY
+  ============================================================ */
+  function renderHistory(filter = '') {
+    let list = getHistory();
+
+    if (filter.trim()) {
+      const q = filter.toLowerCase();
+      list = list.filter(e =>
+        e.base.toLowerCase().includes(q) ||
+        e.target.toLowerCase().includes(q) ||
+        (CURRENCIES[e.base]   || {}).name?.toLowerCase().includes(q) ||
+        (CURRENCIES[e.target] || {}).name?.toLowerCase().includes(q) ||
+        new Date(e.timestamp).toLocaleDateString().includes(q)
+      );
+    }
+
+    const wrap = document.getElementById('tableWrap');
+
+    if (!list.length) {
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 8v4l3 3M3.05 11a9 9 0 1 0 .5-3.5"/><path d="M3 5v3h3"/>
+            </svg>
+          </div>
+          <h3>${filter ? 'No results found' : 'No history yet'}</h3>
+          <p>${filter ? 'Try a different search term.' : 'Convert a currency and save it to see it here.'}</p>
+        </div>`;
+      return;
+    }
+
+    const rows = list.map(e => {
+      const baseInfo   = CURRENCIES[e.base]   || { flag: '', name: e.base };
+      const targetInfo = CURRENCIES[e.target] || { flag: '', name: e.target };
+      const date       = new Date(e.timestamp);
+      const dateStr    = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr    = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      return `
+        <tr>
+          <td>
+            <div class="currency-pair">
+              <span class="currency-flag">${baseInfo.flag}</span>
+              <span>${e.base}</span>
+              <span class="arrow-icon">&#8594;</span>
+              <span class="currency-flag">${targetInfo.flag}</span>
+              <span>${e.target}</span>
+            </div>
+          </td>
+          <td class="amount-cell">${formatNumber(e.amount)} ${e.base}</td>
+          <td class="amount-cell">${formatNumber(e.result)} ${e.target}</td>
+          <td class="rate-cell">1 ${e.base} = ${e.rate}</td>
+          <td class="date-cell">${dateStr}<br><span style="font-size:11px;opacity:.7">${timeStr}</span></td>
+          <td>
+            <div class="action-group">
+              <button class="icon-btn" onclick="openEdit(${e.id})" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>
+                </svg>
+              </button>
+              <button class="icon-btn del" onclick="deleteEntry(${e.id})" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Pair</th>
+            <th>Amount</th>
+            <th>Converted</th>
+            <th>Rate</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ============================================================
+     SEARCH WITH DEBOUNCE
+  ============================================================ */
+  function debounceSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      renderHistory(document.getElementById('searchInput').value);
+    }, 280);
+  }
+
+  /* ============================================================
+     FAVORITES
+  ============================================================ */
+  function getFavorites() {
+    return JSON.parse(localStorage.getItem(LS_FAVS) || '[]');
+  }
+
+  function saveFavorites(list) {
+    localStorage.setItem(LS_FAVS, JSON.stringify(list));
+    updateStats();
+  }
+
+  function addCurrentFavorite() {
+    const pair = `${currentBase}/${currentTarget}`;
+    const favs = getFavorites();
+    if (favs.includes(pair)) { showToast('Pair already in favorites.', 'info'); return; }
+    favs.push(pair);
+    saveFavorites(favs);
+    renderFavorites();
+    showToast(`${pair} added to favorites.`, 'success');
+  }
+
+  function removeFavorite(pair) {
+    const favs = getFavorites().filter(f => f !== pair);
+    saveFavorites(favs);
+    renderFavorites();
+    showToast(`${pair} removed from favorites.`, 'success');
+  }
+
+  function applyFavorite(pair) {
+    const [base, target] = pair.split('/');
+    document.getElementById('baseCurrency').value   = base;
+    document.getElementById('targetCurrency').value = target;
+    currentBase   = base;
+    currentTarget = target;
+    updateFlags();
+    fetchRates(base);
+    scrollToSection('converter');
+  }
+
+  function renderFavorites() {
+    const favs = getFavorites();
+    const list = document.getElementById('favList');
+    if (!favs.length) {
+      list.innerHTML = '<span class="empty-fav">No favorites yet. Convert a currency and add it.</span>';
+      return;
+    }
+    list.innerHTML = favs.map(pair => {
+      const [base, target] = pair.split('/');
+      const bf = (CURRENCIES[base]   || {}).flag || '';
+      const tf = (CURRENCIES[target] || {}).flag || '';
+      return `
+        <div class="fav-chip" onclick="applyFavorite('${pair}')">
+          ${bf} ${base} <span style="color:var(--text-2)">&#8594;</span> ${tf} ${target}
+          <span class="fav-remove" onclick="event.stopPropagation();removeFavorite('${pair}')">&#10005;</span>
+        </div>`;
+    }).join('');
+  }
+
+  /* ============================================================
+     STATS
+  ============================================================ */
+  function updateStats() {
+    document.getElementById('statTotal').textContent = getHistory().length;
+    document.getElementById('statFav').textContent   = getFavorites().length;
+  }
+
+  /* ============================================================
+     THEME
+  ============================================================ */
+  function loadTheme() {
+    const saved = localStorage.getItem(LS_THEME);
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeToggle').classList.add('on');
+    }
+  }
+
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    toggle.classList.toggle('on', !isDark);
+    localStorage.setItem(LS_THEME, isDark ? 'light' : 'dark');
+  }
+
+  /* ============================================================
+     SIDEBAR
+  ============================================================ */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  /* ============================================================
+     SCROLL TO SECTION
+  ============================================================ */
+  function scrollToSection(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeSidebar();
+    // Update active nav
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  }
+
+  /* ============================================================
+     TOAST
+  ============================================================ */
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast     = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<div class="toast-dot"></div><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('out');
+      toast.addEventListener('animationend', () => toast.remove());
+    }, 3200);
+  }
+
+  /* ============================================================
+     START
+  ============================================================ */
+  document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
